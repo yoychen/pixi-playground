@@ -1,0 +1,60 @@
+{
+  "frames": {
+    "bunny_moving0.png": {
+      "frame": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving1.png": {
+      "frame": { "x": 66, "y": 0, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving2.png": {
+      "frame": { "x": 132, "y": 0, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving3.png": {
+      "frame": { "x": 0, "y": 72, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving4.png": {
+      "frame": { "x": 66, "y": 72, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving5.png": {
+      "frame": { "x": 132, "y": 72, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    },
+    "bunny_moving6.png": {
+      "frame": { "x": 0, "y": 144, "w": 66, "h": 72 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 66, "h": 72 },
+      "sourceSize": { "w": 66, "h": 72 }
+    }
+  },
+  "meta": {
+    "app": "https://github.com/piskelapp/piskel/",
+    "version": "1.0",
+    "image": "bunny_moving.png",
+    "format": "RGBA8888",
+    "size": { "w": 198, "h": 216 }
+  }
+}
