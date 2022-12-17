@@ -1,5 +1,21 @@
 import { Application, Assets, AnimatedSprite, Container } from "pixi.js";
 
+const createAnimatedSprite = async (
+  path: string,
+  { x, y }: { x: number; y: number }
+) => {
+  const sprite = await Assets.load(path).then((sheet) => {
+    return new AnimatedSprite(Object.values(sheet.textures) as any);
+  });
+  sprite.anchor.x = 0.5;
+  sprite.anchor.y = 1;
+  sprite.x = x;
+  sprite.y = y;
+  sprite.animationSpeed = 0.3;
+
+  return sprite;
+};
+
 export class MoonBunny {
   _normalSprite!: AnimatedSprite;
   _movingSprite!: AnimatedSprite;
@@ -13,32 +29,16 @@ export class MoonBunny {
     app: Application,
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
   ) {
-    this._normalSprite = await Assets.load("images/bunny_normal.json").then(
-      (sheet) => {
-        return (this._normalSprite = new AnimatedSprite(
-          Object.values(sheet.textures) as any
-        ));
-      }
+    this._normalSprite = await createAnimatedSprite(
+      "images/bunny_normal.json",
+      { x, y }
     );
-    this._normalSprite.anchor.x = 0.5;
-    this._normalSprite.anchor.y = 1;
-    this._normalSprite.x = x;
-    this._normalSprite.y = y;
-    this._normalSprite.animationSpeed = 0.3;
-
     this._normalSprite.play();
 
-    this._movingSprite = await Assets.load("images/bunny_moving.json").then(
-      (sheet) => {
-        return new AnimatedSprite(Object.values(sheet.textures) as any);
-      }
+    this._movingSprite = await createAnimatedSprite(
+      "images/bunny_moving.json",
+      { x, y }
     );
-    this._movingSprite.anchor.x = 0.5;
-    this._movingSprite.anchor.y = 1;
-    this._movingSprite.x = x;
-    this._movingSprite.y = y;
-    this._movingSprite.animationSpeed = 0.3;
-
     this._movingSprite.play();
 
     this.registerListeners();
