@@ -1,4 +1,5 @@
 import { Application, Assets, AnimatedSprite, Container } from "pixi.js";
+import { hasCollision } from "./utils/hasCollision";
 
 const createAnimatedSprite = async (
   path: string,
@@ -8,7 +9,6 @@ const createAnimatedSprite = async (
     return new AnimatedSprite(Object.values(sheet.textures) as any);
   });
   sprite.anchor.x = 0.5;
-  sprite.anchor.y = 1;
   sprite.animationSpeed = animationSpeed;
   sprite.loop = loop;
 
@@ -26,6 +26,8 @@ export class MoonBunny {
   _x: number = 0;
   _y: number = 0;
   isMovingKeyPressed: boolean = false;
+  isOnTheGround: boolean = false;
+  grounds: Container[] = [];
 
   workingSpeed = 3;
   gravity = 1;
@@ -60,9 +62,50 @@ export class MoonBunny {
     this.registerListeners();
     this.app.ticker.add(this.updateSpriteStatus);
     this.app.ticker.add(this.updatePosition);
+    this.app.ticker.add(this.handleGravity);
+  }
+
+  handleGravity = () => {
+    const currentGround = this.grounds.find((ground) =>
+      hasCollision(ground, this.statusSpriteMap.STAND)
+    );
+    this.isOnTheGround = !!currentGround;
+
+    if (this.isOnTheGround) {
+      this.y = currentGround!.y - this.statusSpriteMap.STAND.height + 1;
+    } else if (this.status !== "JUMPING") {
+      this.fall();
+    }
+  };
+
+  isHandlingFall = false;
+  fall() {
+    if (this.isHandlingFall) return;
+
+    this.isHandlingFall = true;
+    let cumulatedTime = 0;
+    const jumpAt = this.y;
+
+    const handleFall = (delta: number) => {
+      const jumpHeight = (-this.gravity / 2) * Math.pow(cumulatedTime, 2);
+      this.y = jumpAt + -1 * jumpHeight;
+
+      cumulatedTime += delta;
+
+      if (this.isOnTheGround) {
+        this.isHandlingFall = false;
+        this.status = this.isMovingKeyPressed ? "WALKING" : "STAND";
+        this.app.ticker.remove(handleFall);
+      }
+    };
+    this.app.ticker.add(handleFall);
   }
 
   updateSpriteStatus = () => {
+    if (!this.isOnTheGround && this.status !== "JUMPING") {
+      this.status = "STAND";
+    }
+
     if (this.direction === "LEFT") {
       Object.values(this.statusSpriteMap).forEach(
         (sprite) => (sprite.scale.x = 1)
@@ -119,6 +162,7 @@ export class MoonBunny {
 
     this.status = "JUMPING";
     this.statusSpriteMap.JUMPING.gotoAndPlay(0);
+    this.y -= 1;
 
     let cumulatedTime = 0;
     const jumpAt = this.y;
@@ -131,9 +175,8 @@ export class MoonBunny {
 
       cumulatedTime += delta;
 
-      if (this.y > jumpAt) {
+      if (this.isOnTheGround) {
         this.status = this.isMovingKeyPressed ? "WALKING" : "STAND";
-        this.y = jumpAt;
         this.app.ticker.remove(handleJump);
       }
     };

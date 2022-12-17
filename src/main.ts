@@ -1,4 +1,4 @@
-import { Application } from "pixi.js";
+import { Application, Graphics } from "pixi.js";
 import { MoonBunny } from "./MoonBunny";
 import "./style.css";
 
@@ -21,3 +21,12 @@ await moonBunny.init(app, {
   y: app.renderer.height / 2,
 });
 moonBunny.addIntoStage(app.stage);
+
+let ground = new Graphics();
+ground.beginFill(0xffc107);
+ground.drawRect(0, 0, app.renderer.width, 50);
+ground.x = 0;
+ground.y = app.renderer.height / 2 + 200;
+app.stage.addChild(ground);
+
+moonBunny.grounds.push(ground);
