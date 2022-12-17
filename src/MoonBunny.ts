@@ -45,14 +45,14 @@ export class MoonBunny {
     app.ticker.add(this.gameLoop);
   }
 
-  gameLoop(delta: number) {
+  gameLoop = (delta: number) => {
     this.updateSpriteStatus();
 
     if (this.status === "MOVING") {
       this.x +=
         delta * this.workingSpeed * (this.direction === "RIGHT" ? 1 : -1);
     }
-  }
+  };
 
   updateSpriteStatus() {
     if (this.direction === "LEFT") {
