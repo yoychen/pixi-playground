@@ -30,6 +30,8 @@ export class MoonBunny {
   gravity = 1;
   jumpPower = 20;
 
+  app!: Application;
+
   async init(
     app: Application,
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
@@ -53,36 +55,13 @@ export class MoonBunny {
     this.statusSpriteMap.STAND.play();
     this.statusSpriteMap.WALKING.play();
 
+    this.app = app;
     this.registerListeners();
-    app.ticker.add(this.gameLoop);
+    this.app.ticker.add(this.updateSpriteStatus);
+    this.app.ticker.add(this.updatePosition);
   }
 
-  cumulatedTime = 0;
-  jumpAt = 0;
-
-  gameLoop = (delta: number) => {
-    this.updateSpriteStatus();
-
-    if (this.status === "WALKING") {
-      this.x +=
-        delta * this.workingSpeed * (this.direction === "RIGHT" ? 1 : -1);
-    }
-
-    if (this.status === "JUMPING") {
-      const jumpHeight =
-        (-this.gravity / 2) * Math.pow(this.cumulatedTime, 2) +
-        this.jumpPower * this.cumulatedTime;
-      this.y = this.jumpAt + -1 * jumpHeight;
-
-      this.cumulatedTime += delta;
-      if (this.y > this.jumpAt) {
-        this.status = "STAND";
-        this.y = this.jumpAt;
-      }
-    }
-  };
-
-  updateSpriteStatus() {
+  updateSpriteStatus = () => {
     if (this.direction === "LEFT") {
       Object.values(this.statusSpriteMap).forEach(
         (sprite) => (sprite.scale.x = 1)
@@ -97,7 +76,14 @@ export class MoonBunny {
       (sprite) => (sprite.visible = false)
     );
     this.statusSpriteMap[this.status].visible = true;
-  }
+  };
+
+  updatePosition = (delta: number) => {
+    if (this.status === "WALKING") {
+      this.x +=
+        delta * this.workingSpeed * (this.direction === "RIGHT" ? 1 : -1);
+    }
+  };
 
   registerListeners() {
     window.addEventListener("keydown", (event) => {
@@ -107,10 +93,7 @@ export class MoonBunny {
       }
 
       if (event.code === "ArrowUp") {
-        this.status = "JUMPING";
-        this.statusSpriteMap.JUMPING.gotoAndPlay(0);
-        this.cumulatedTime = 0;
-        this.jumpAt = this.y;
+        this.jump();
       }
     });
 
@@ -122,6 +105,32 @@ export class MoonBunny {
         this.status = "STAND";
       }
     });
+  }
+
+  jump() {
+    if (this.status === "JUMPING") return;
+
+    this.status = "JUMPING";
+    this.statusSpriteMap.JUMPING.gotoAndPlay(0);
+
+    let cumulatedTime = 0;
+    const jumpAt = this.y;
+
+    const handleJump = (delta: number) => {
+      const jumpHeight =
+        (-this.gravity / 2) * Math.pow(cumulatedTime, 2) +
+        this.jumpPower * cumulatedTime;
+      this.y = jumpAt + -1 * jumpHeight;
+
+      cumulatedTime += delta;
+
+      if (this.y > jumpAt) {
+        this.status = "STAND";
+        this.y = jumpAt;
+        this.app.ticker.remove(handleJump);
+      }
+    };
+    this.app.ticker.add(handleJump);
   }
 
   set x(value: number) {
