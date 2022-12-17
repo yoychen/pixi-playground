@@ -25,6 +25,7 @@ export class MoonBunny {
   direction: "LEFT" | "RIGHT" = "LEFT";
   _x: number = 0;
   _y: number = 0;
+  isMovingKeyPressed: boolean = false;
 
   workingSpeed = 3;
   gravity = 1;
@@ -79,7 +80,7 @@ export class MoonBunny {
   };
 
   updatePosition = (delta: number) => {
-    if (this.status === "WALKING") {
+    if (this.isMovingKeyPressed) {
       this.x +=
         delta * this.workingSpeed * (this.direction === "RIGHT" ? 1 : -1);
     }
@@ -88,7 +89,10 @@ export class MoonBunny {
   registerListeners() {
     window.addEventListener("keydown", (event) => {
       if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
-        this.status = "WALKING";
+        if (this.status === "STAND") {
+          this.status = "WALKING";
+        }
+        this.isMovingKeyPressed = true;
         this.direction = event.code === "ArrowRight" ? "RIGHT" : "LEFT";
       }
 
@@ -102,7 +106,10 @@ export class MoonBunny {
         (this.direction === "RIGHT" && event.code === "ArrowRight") ||
         (this.direction === "LEFT" && event.code === "ArrowLeft")
       ) {
-        this.status = "STAND";
+        if (this.status === "WALKING") {
+          this.status = "STAND";
+        }
+        this.isMovingKeyPressed = false;
       }
     });
   }
@@ -125,7 +132,7 @@ export class MoonBunny {
       cumulatedTime += delta;
 
       if (this.y > jumpAt) {
-        this.status = "STAND";
+        this.status = this.isMovingKeyPressed ? "WALKING" : "STAND";
         this.y = jumpAt;
         this.app.ticker.remove(handleJump);
       }
