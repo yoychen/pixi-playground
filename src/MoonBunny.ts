@@ -1,8 +1,8 @@
 import { Application, Assets, AnimatedSprite, Container } from "pixi.js";
 
 export class MoonBunny {
-  normalSprite!: AnimatedSprite;
-  movingSprite!: AnimatedSprite;
+  _normalSprite!: AnimatedSprite;
+  _movingSprite!: AnimatedSprite;
 
   status: "STAND" | "MOVING" = "STAND";
   direction: "LEFT" | "RIGHT" = "LEFT";
@@ -13,33 +13,33 @@ export class MoonBunny {
     app: Application,
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
   ) {
-    this.normalSprite = await Assets.load("images/bunny_normal.json").then(
+    this._normalSprite = await Assets.load("images/bunny_normal.json").then(
       (sheet) => {
-        return (this.normalSprite = new AnimatedSprite(
+        return (this._normalSprite = new AnimatedSprite(
           Object.values(sheet.textures) as any
         ));
       }
     );
-    this.normalSprite.anchor.x = 0.5;
-    this.normalSprite.anchor.y = 1;
-    this.normalSprite.x = x;
-    this.normalSprite.y = y;
-    this.normalSprite.animationSpeed = 0.3;
+    this._normalSprite.anchor.x = 0.5;
+    this._normalSprite.anchor.y = 1;
+    this._normalSprite.x = x;
+    this._normalSprite.y = y;
+    this._normalSprite.animationSpeed = 0.3;
 
-    this.normalSprite.play();
+    this._normalSprite.play();
 
-    this.movingSprite = await Assets.load("images/bunny_moving.json").then(
+    this._movingSprite = await Assets.load("images/bunny_moving.json").then(
       (sheet) => {
         return new AnimatedSprite(Object.values(sheet.textures) as any);
       }
     );
-    this.movingSprite.anchor.x = 0.5;
-    this.movingSprite.anchor.y = 1;
-    this.movingSprite.x = x;
-    this.movingSprite.y = y;
-    this.movingSprite.animationSpeed = 0.3;
+    this._movingSprite.anchor.x = 0.5;
+    this._movingSprite.anchor.y = 1;
+    this._movingSprite.x = x;
+    this._movingSprite.y = y;
+    this._movingSprite.animationSpeed = 0.3;
 
-    this.movingSprite.play();
+    this._movingSprite.play();
 
     this.registerListeners();
     app.ticker.add(this.gameLoop);
@@ -56,19 +56,19 @@ export class MoonBunny {
 
   updateSpriteStatus() {
     if (this.direction === "LEFT") {
-      this.normalSprite.scale.x = 1;
-      this.movingSprite.scale.x = 1;
+      this._normalSprite.scale.x = 1;
+      this._movingSprite.scale.x = 1;
     } else {
-      this.normalSprite.scale.x = -1;
-      this.movingSprite.scale.x = -1;
+      this._normalSprite.scale.x = -1;
+      this._movingSprite.scale.x = -1;
     }
 
     if (this.status === "STAND") {
-      this.movingSprite.visible = false;
-      this.normalSprite.visible = true;
+      this._movingSprite.visible = false;
+      this._normalSprite.visible = true;
     } else {
-      this.movingSprite.visible = true;
-      this.normalSprite.visible = false;
+      this._movingSprite.visible = true;
+      this._normalSprite.visible = false;
     }
   }
 
@@ -91,23 +91,23 @@ export class MoonBunny {
   }
 
   set x(value: number) {
-    this.normalSprite.x = value;
-    this.movingSprite.x = value;
+    this._normalSprite.x = value;
+    this._movingSprite.x = value;
   }
   get x() {
-    return this.normalSprite.x;
+    return this._normalSprite.x;
   }
 
   set y(value: number) {
-    this.normalSprite.y = value;
-    this.movingSprite.y = value;
+    this._normalSprite.y = value;
+    this._movingSprite.y = value;
   }
   get y() {
-    return this.normalSprite.y;
+    return this._normalSprite.y;
   }
 
   addIntoStage(stage: Container) {
-    stage.addChild(this.movingSprite);
-    stage.addChild(this.normalSprite);
+    stage.addChild(this._movingSprite);
+    stage.addChild(this._normalSprite);
   }
 }
