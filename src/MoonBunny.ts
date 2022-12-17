@@ -2,27 +2,29 @@ import { Application, Assets, AnimatedSprite, Container } from "pixi.js";
 
 const createAnimatedSprite = async (
   path: string,
-  { x, y, animationSpeed }: { x: number; y: number; animationSpeed: number }
+  { animationSpeed, loop }: { animationSpeed: number; loop: boolean }
 ) => {
   const sprite = await Assets.load(path).then((sheet) => {
     return new AnimatedSprite(Object.values(sheet.textures) as any);
   });
   sprite.anchor.x = 0.5;
   sprite.anchor.y = 1;
-  sprite.x = x;
-  sprite.y = y;
   sprite.animationSpeed = animationSpeed;
+  sprite.loop = loop;
 
   return sprite;
 };
 
-export class MoonBunny {
-  _normalSprite!: AnimatedSprite;
-  _walkingSprite!: AnimatedSprite;
-  _jumpingSprite!: AnimatedSprite;
+type Status = "STAND" | "WALKING" | "JUMPING";
 
-  status: "STAND" | "WALKING" | "JUMPING" = "STAND";
+export class MoonBunny {
+  status: Status = "STAND";
+  statusSpriteMap!: {
+    [key in Status]: AnimatedSprite;
+  };
   direction: "LEFT" | "RIGHT" = "LEFT";
+  _x: number = 0;
+  _y: number = 0;
 
   workingSpeed = 3;
   gravity = 1;
@@ -32,23 +34,24 @@ export class MoonBunny {
     app: Application,
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
   ) {
-    this._normalSprite = await createAnimatedSprite(
-      "images/bunny_normal.json",
-      { x, y, animationSpeed: 0.3 }
-    );
-    this._normalSprite.play();
-
-    this._walkingSprite = await createAnimatedSprite(
-      "images/bunny_moving.json",
-      { x, y, animationSpeed: 0.3 }
-    );
-    this._walkingSprite.play();
-
-    this._jumpingSprite = await createAnimatedSprite(
-      "images/bunny_moving.json",
-      { x, y, animationSpeed: 0.25 }
-    );
-    this._jumpingSprite.loop = false;
+    this.statusSpriteMap = {
+      STAND: await createAnimatedSprite("images/bunny_normal.json", {
+        animationSpeed: 0.3,
+        loop: true,
+      }),
+      WALKING: await createAnimatedSprite("images/bunny_moving.json", {
+        animationSpeed: 0.3,
+        loop: true,
+      }),
+      JUMPING: await createAnimatedSprite("images/bunny_moving.json", {
+        animationSpeed: 0.25,
+        loop: false,
+      }),
+    };
+    this.x = x;
+    this.y = y;
+    this.statusSpriteMap.STAND.play();
+    this.statusSpriteMap.WALKING.play();
 
     this.registerListeners();
     app.ticker.add(this.gameLoop);
@@ -81,28 +84,19 @@ export class MoonBunny {
 
   updateSpriteStatus() {
     if (this.direction === "LEFT") {
-      this._normalSprite.scale.x = 1;
-      this._walkingSprite.scale.x = 1;
-      this._jumpingSprite.scale.x = 1;
+      Object.values(this.statusSpriteMap).forEach(
+        (sprite) => (sprite.scale.x = 1)
+      );
     } else {
-      this._normalSprite.scale.x = -1;
-      this._walkingSprite.scale.x = -1;
-      this._jumpingSprite.scale.x = -1;
+      Object.values(this.statusSpriteMap).forEach(
+        (sprite) => (sprite.scale.x = -1)
+      );
     }
 
-    if (this.status === "STAND") {
-      this._walkingSprite.visible = false;
-      this._jumpingSprite.visible = false;
-      this._normalSprite.visible = true;
-    } else if (this.status === "WALKING") {
-      this._walkingSprite.visible = true;
-      this._jumpingSprite.visible = false;
-      this._normalSprite.visible = false;
-    } else {
-      this._walkingSprite.visible = false;
-      this._jumpingSprite.visible = true;
-      this._normalSprite.visible = false;
-    }
+    Object.values(this.statusSpriteMap).forEach(
+      (sprite) => (sprite.visible = false)
+    );
+    this.statusSpriteMap[this.status].visible = true;
   }
 
   registerListeners() {
@@ -114,9 +108,9 @@ export class MoonBunny {
 
       if (event.code === "ArrowUp") {
         this.status = "JUMPING";
-        this._jumpingSprite.gotoAndPlay(0);
+        this.statusSpriteMap.JUMPING.gotoAndPlay(0);
         this.cumulatedTime = 0;
-        this.jumpAt = this._jumpingSprite.y;
+        this.jumpAt = this.y;
       }
     });
 
@@ -131,26 +125,24 @@ export class MoonBunny {
   }
 
   set x(value: number) {
-    this._normalSprite.x = value;
-    this._walkingSprite.x = value;
-    this._jumpingSprite.x = value;
+    this._x = value;
+    Object.values(this.statusSpriteMap).forEach((sprite) => (sprite.x = value));
   }
   get x() {
-    return this._normalSprite.x;
+    return this._x;
   }
 
   set y(value: number) {
-    this._normalSprite.y = value;
-    this._walkingSprite.y = value;
-    this._jumpingSprite.y = value;
+    this._y = value;
+    Object.values(this.statusSpriteMap).forEach((sprite) => (sprite.y = value));
   }
   get y() {
-    return this._normalSprite.y;
+    return this._y;
   }
 
   addIntoStage(stage: Container) {
-    stage.addChild(this._walkingSprite);
-    stage.addChild(this._jumpingSprite);
-    stage.addChild(this._normalSprite);
+    Object.values(this.statusSpriteMap).forEach((sprite) =>
+      stage.addChild(sprite)
+    );
   }
 }
