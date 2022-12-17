@@ -7,6 +7,8 @@ export class MoonBunny {
   status: "STAND" | "MOVING" = "STAND";
   direction: "LEFT" | "RIGHT" = "LEFT";
 
+  workingSpeed = 3;
+
   async init(
     app: Application,
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
@@ -40,27 +42,34 @@ export class MoonBunny {
     this.movingSprite.play();
 
     this.registerListeners();
-    app.ticker.add((delta) => {
-      if (this.direction === "LEFT") {
-        this.normalSprite.scale.x = 1;
-        this.movingSprite.scale.x = 1;
-      } else {
-        this.normalSprite.scale.x = -1;
-        this.movingSprite.scale.x = -1;
-      }
+    app.ticker.add(this.gameLoop);
+  }
 
-      if (this.status === "STAND") {
-        this.movingSprite.visible = false;
-        this.normalSprite.visible = true;
-      } else {
-        this.movingSprite.visible = true;
-        this.normalSprite.visible = false;
-      }
+  gameLoop(delta: number) {
+    this.updateSpriteStatus();
 
-      if (this.status === "MOVING") {
-        this.x += delta * 3 * (this.direction === "RIGHT" ? 1 : -1);
-      }
-    });
+    if (this.status === "MOVING") {
+      this.x +=
+        delta * this.workingSpeed * (this.direction === "RIGHT" ? 1 : -1);
+    }
+  }
+
+  updateSpriteStatus() {
+    if (this.direction === "LEFT") {
+      this.normalSprite.scale.x = 1;
+      this.movingSprite.scale.x = 1;
+    } else {
+      this.normalSprite.scale.x = -1;
+      this.movingSprite.scale.x = -1;
+    }
+
+    if (this.status === "STAND") {
+      this.movingSprite.visible = false;
+      this.normalSprite.visible = true;
+    } else {
+      this.movingSprite.visible = true;
+      this.normalSprite.visible = false;
+    }
   }
 
   registerListeners() {
@@ -72,7 +81,10 @@ export class MoonBunny {
     });
 
     window.addEventListener("keyup", (event) => {
-      if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
+      if (
+        (this.direction === "RIGHT" && event.code === "ArrowRight") ||
+        (this.direction === "LEFT" && event.code === "ArrowLeft")
+      ) {
         this.status = "STAND";
       }
     });
