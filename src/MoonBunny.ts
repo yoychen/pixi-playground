@@ -67,7 +67,7 @@ export class MoonBunny {
 
   handleGravity = () => {
     const currentGround = this.grounds.find((ground) =>
-      hasCollision(ground, this.statusSpriteMap.STAND)
+      this.hasCollision(ground)
     );
     this.isOnTheGround = !!currentGround;
 
@@ -197,6 +197,20 @@ export class MoonBunny {
   }
   get y() {
     return this._y;
+  }
+
+  hasCollision(target: Container) {
+    return hasCollision(this.getBoundingRect(), target);
+  }
+
+  getBoundingRect() {
+    return {
+      width: this.statusSpriteMap.STAND.width,
+      height: this.statusSpriteMap.STAND.height,
+      // 修正 sprite.anchor.x = 0.5 的誤差
+      x: this.statusSpriteMap.STAND.x - this.statusSpriteMap.STAND.width / 2,
+      y: this.statusSpriteMap.STAND.y,
+    };
   }
 
   addIntoStage(stage: Container) {

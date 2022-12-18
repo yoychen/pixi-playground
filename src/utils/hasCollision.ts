@@ -1,7 +1,12 @@
-import { Container } from "pixi.js";
+type BoundingRect = {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
 
 // ref: https://github.com/kittykatattack/learningPixi#the-hittestrectangle-function
-export const hasCollision = (r1: Container, r2: Container) => {
+export const hasCollision = (r1: BoundingRect, r2: BoundingRect) => {
   //Define the variables we'll need to calculate
   let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
 
