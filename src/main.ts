@@ -20,7 +20,6 @@ await moonBunny.init(app, {
   x: app.renderer.width / 2,
   y: app.renderer.height / 2,
 });
-moonBunny.addIntoStage(app.stage);
 
 let ground = new Graphics();
 ground.beginFill(0xffc107);
@@ -38,3 +37,4 @@ app.stage.addChild(ground2);
 
 moonBunny.grounds.push(ground);
 moonBunny.grounds.push(ground2);
+moonBunny.addIntoStage(app.stage);
