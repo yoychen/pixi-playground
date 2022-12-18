@@ -15,10 +15,10 @@ const createAnimatedSprite = async (
   return sprite;
 };
 
-type Status = "STAND" | "WALKING" | "JUMPING";
+type Status = "NORMAL" | "WALKING" | "JUMPING";
 
 export class MoonBunny {
-  status: Status = "STAND";
+  status: Status = "NORMAL";
   statusSpriteMap!: {
     [key in Status]: AnimatedSprite;
   };
@@ -40,7 +40,7 @@ export class MoonBunny {
     { x = 0, y = 0 }: { x?: number; y?: number } = {}
   ) {
     this.statusSpriteMap = {
-      STAND: await createAnimatedSprite("images/bunny_normal.json", {
+      NORMAL: await createAnimatedSprite("images/bunny_normal.json", {
         animationSpeed: 0.3,
         loop: true,
       }),
@@ -55,7 +55,7 @@ export class MoonBunny {
     };
     this.x = x;
     this.y = y;
-    this.statusSpriteMap.STAND.play();
+    this.statusSpriteMap.NORMAL.play();
     this.statusSpriteMap.WALKING.play();
 
     this.app = app;
@@ -72,7 +72,7 @@ export class MoonBunny {
     this.isOnTheGround = !!currentGround;
 
     if (this.isOnTheGround) {
-      this.y = currentGround!.y - this.statusSpriteMap.STAND.height + 1;
+      this.y = currentGround!.y - this.statusSpriteMap.NORMAL.height + 1;
     } else if (this.status !== "JUMPING") {
       this.fall();
     }
@@ -94,7 +94,7 @@ export class MoonBunny {
 
       if (this.isOnTheGround) {
         this.isHandlingFall = false;
-        this.status = this.isMovingKeyPressed ? "WALKING" : "STAND";
+        this.status = this.isMovingKeyPressed ? "WALKING" : "NORMAL";
         this.app.ticker.remove(handleFall);
       }
     };
@@ -103,7 +103,7 @@ export class MoonBunny {
 
   updateSpriteStatus = () => {
     if (!this.isOnTheGround && this.status !== "JUMPING") {
-      this.status = "STAND";
+      this.status = "NORMAL";
     }
 
     if (this.direction === "LEFT") {
@@ -132,7 +132,7 @@ export class MoonBunny {
   registerListeners() {
     window.addEventListener("keydown", (event) => {
       if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
-        if (this.status === "STAND") {
+        if (this.status === "NORMAL") {
           this.status = "WALKING";
         }
         this.isMovingKeyPressed = true;
@@ -150,7 +150,7 @@ export class MoonBunny {
         (this.direction === "LEFT" && event.code === "ArrowLeft")
       ) {
         if (this.status === "WALKING") {
-          this.status = "STAND";
+          this.status = "NORMAL";
         }
         this.isMovingKeyPressed = false;
       }
@@ -176,7 +176,7 @@ export class MoonBunny {
       cumulatedTime += delta;
 
       if (this.isOnTheGround) {
-        this.status = this.isMovingKeyPressed ? "WALKING" : "STAND";
+        this.status = this.isMovingKeyPressed ? "WALKING" : "NORMAL";
         this.app.ticker.remove(handleJump);
       }
     };
@@ -205,11 +205,11 @@ export class MoonBunny {
 
   getBoundingRect() {
     return {
-      width: this.statusSpriteMap.STAND.width,
-      height: this.statusSpriteMap.STAND.height,
+      width: this.statusSpriteMap.NORMAL.width,
+      height: this.statusSpriteMap.NORMAL.height,
       // 修正 sprite.anchor.x = 0.5 的誤差
-      x: this.statusSpriteMap.STAND.x - this.statusSpriteMap.STAND.width / 2,
-      y: this.statusSpriteMap.STAND.y,
+      x: this.statusSpriteMap.NORMAL.x - this.statusSpriteMap.NORMAL.width / 2,
+      y: this.statusSpriteMap.NORMAL.y,
     };
   }
 
