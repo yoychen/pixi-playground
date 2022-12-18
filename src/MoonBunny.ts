@@ -49,7 +49,7 @@ export class MoonBunny {
         loop: true,
       }),
       JUMPING: await createAnimatedSprite("images/bunny_moving.json", {
-        animationSpeed: 0.25,
+        animationSpeed: 0.8,
         loop: false,
       }),
     };
@@ -162,6 +162,7 @@ export class MoonBunny {
 
     this.status = "JUMPING";
     this.statusSpriteMap.JUMPING.gotoAndPlay(0);
+    // 脫離地面，避免被 handleGravity 判定為回到地面
     this.y -= 1;
 
     let cumulatedTime = 0;
