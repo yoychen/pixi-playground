@@ -33,7 +33,7 @@ let ground2 = new Graphics();
 ground2.beginFill(0xffc107);
 ground2.drawRect(0, 0, app.renderer.width, 50);
 ground2.x = 600;
-ground2.y = app.renderer.height / 2 - 20;
+ground2.y = app.renderer.height / 2 + 15;
 app.stage.addChild(ground2);
 
 moonBunny.grounds.push(ground);

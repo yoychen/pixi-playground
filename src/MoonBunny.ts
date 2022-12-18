@@ -1,5 +1,5 @@
 import { Application, Assets, AnimatedSprite, Container } from "pixi.js";
-import { hasCollision } from "./utils/hasCollision";
+import { BoundingRect, hasCollision } from "./utils/hasCollision";
 
 const createAnimatedSprite = async (
   path: string,
@@ -26,7 +26,6 @@ export class MoonBunny {
   _x: number = 0;
   _y: number = 0;
   isMovingKeyPressed: boolean = false;
-  isOnTheGround: boolean = false;
   grounds: Container[] = [];
 
   workingSpeed = 3;
@@ -65,14 +64,23 @@ export class MoonBunny {
     this.app.ticker.add(this.handleGravity);
   }
 
+  currentGround?: Container;
+  get isOnTheGround() {
+    return !!this.currentGround;
+  }
+
   handleGravity = () => {
-    const currentGround = this.grounds.find((ground) =>
-      this.hasCollision(ground)
-    );
-    this.isOnTheGround = !!currentGround;
+    const currentBoundaryRect = this.getBoundingRect();
+    this.currentGround = this.grounds
+      .filter((ground) => this.hasCollision(ground))
+      .find(
+        (ground) =>
+          ground.y + ground.height >
+          currentBoundaryRect.y + currentBoundaryRect.height
+      );
 
     if (this.isOnTheGround) {
-      this.y = currentGround!.y - this.statusSpriteMap.NORMAL.height + 1;
+      this.y = this.currentGround!.y - this.statusSpriteMap.NORMAL.height + 1;
     } else if (this.status !== "JUMPING") {
       this.fall();
     }
@@ -204,7 +212,7 @@ export class MoonBunny {
     return hasCollision(this.getBoundingRect(), target);
   }
 
-  getBoundingRect() {
+  getBoundingRect(): BoundingRect {
     return {
       width: this.statusSpriteMap.NORMAL.width,
       height: this.statusSpriteMap.NORMAL.height,

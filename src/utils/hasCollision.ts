@@ -1,4 +1,4 @@
-type BoundingRect = {
+export type BoundingRect = {
   width: number;
   height: number;
   x: number;
