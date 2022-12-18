@@ -31,6 +31,7 @@ export class MoonBunny {
   workingSpeed = 3;
   gravity = 1;
   jumpPower = 20;
+  isJumpFalling = false;
 
   app!: Application;
 
@@ -70,6 +71,9 @@ export class MoonBunny {
   }
 
   handleGravity = () => {
+    // 跳躍階段的前半段不作地面的判定
+    if (this.status === "JUMPING" && !this.isJumpFalling) return;
+
     const currentBoundaryRect = this.getBoundingRect();
     this.currentGround = this.grounds
       .filter((ground) => this.hasCollision(ground))
@@ -170,10 +174,11 @@ export class MoonBunny {
 
     this.status = "JUMPING";
     this.statusSpriteMap.JUMPING.gotoAndPlay(0);
-    // 脫離地面，避免被 handleGravity 判定為回到地面
-    this.y -= 1;
+    // 脫離地面
+    this.currentGround = undefined;
 
     let cumulatedTime = 0;
+    let previousJumpHeight = 0;
     const jumpAt = this.y;
 
     const handleJump = (delta: number) => {
@@ -182,10 +187,16 @@ export class MoonBunny {
         this.jumpPower * cumulatedTime;
       this.y = jumpAt + -1 * jumpHeight;
 
+      if (previousJumpHeight > jumpHeight) {
+        this.isJumpFalling = true;
+      }
+
       cumulatedTime += delta;
+      previousJumpHeight = jumpHeight;
 
       if (this.isOnTheGround) {
         this.status = this.isMovingKeyPressed ? "WALKING" : "NORMAL";
+        this.isJumpFalling = false;
         this.app.ticker.remove(handleJump);
       }
     };
