@@ -1,0 +1,45 @@
+name: Main workflow
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Use Node.js 14
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build demo site
+        run: npm run build
+      - name: Upload demo site
+        uses: actions/upload-artifact@v1
+        with:
+          name: demo-site
+          path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Download demo site
+        uses: actions/download-artifact@v1
+        with:
+          name: demo-site
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: demo-site
+          token: ${{secrets.deploy_token}}
